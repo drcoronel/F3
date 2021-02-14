@@ -3,26 +3,60 @@ import numpy as np
 import pandas as pd
 
 
-# def read_horizons_3D(path):
 
-#     with open(path) as f:
-#         lines = f.readlines()
+class Horizons:
+
+    def __init__(self):
+        pass
+
+    def load_horizons(self,file):
+        
+        self.path = pathlib.Path(file)
+        ixt, surfaces = parse_horizons_3D(self.path)
+        self.horizons = sort_horizons(ixt,surfaces)
     
-#     dfs =[]
-#     for l in lines[4:-1]:
-#         chars = l.split()
-#         if len(chars) != 6:
-#             pass
-#         df = pd.DataFrame()
-#         df["Surface"] = chars[2]
-#         df["X"] = chars[3]
-#         df["Y"] = chars[4]
-#         df["Z"] = chars[5]
-#         dfs.append(df)
+    def get_horizon(self,horizon_name):
+        horizon = Horizon()
+        horizon.name = horizon_name
+        horizon.data = self.horizons[horizon_name]
+        return horizon
     
-#     return  pd.concat(dfs)
+    def plot_horizon(self,horizon_name):
+        import matplotlib.pyplot as plt
+
+        horizon = self.get_horizon(horizon_name)
+        horizon.plot_horizon()
 
 
+class Horizon(Horizons):
+
+    def __init__(self):
+        pass
+
+    def grid_horizon(self,nx=200,ny=200):
+        from scipy.interpolate import griddata
+        xs,ys,zs = self.data
+        xi = np.linspace(xs.min(),xs.max(),nx)
+        yi = np.linspace(ys.min(),ys.max(),ny)
+        X,Y = np.meshgrid(xi,yi)
+        Z = griddata((xs,ys),zs,(X,Y))
+
+        return X,Y,Z
+    
+    def plot_horizon(self):
+        import matplotlib.pyplot as plt
+
+        X,Y,Z = self.grid_horizon()
+        
+        fig, ax = plt.subplots()
+        c = ax.pcolormesh(X,Y,Z,cmap = 'terrain_r')
+        fig.colorbar(c,orientation = 'vertical', label = 'Z')
+        ax.legend()
+        ax.set_title(f'{self.name}')
+
+        plt.show()    
+
+    
 
 def parse_horizons_3D(path):
     """
@@ -52,7 +86,7 @@ def parse_horizons_3D(path):
     xyt = np.array([X,Y,Z]).astype(np.float)
     xyt = xyt.T
     
-    return  xyt , surfaces.squeeze()
+    return  xyt, surfaces.squeeze()
 
 
 def sort_horizons(xyt,surfaces):
@@ -63,11 +97,8 @@ def sort_horizons(xyt,surfaces):
 
     for k in key_horizons:
         idx = np.where(surfaces == k)[0]
-        x,y,z = xyt[idx,:].T
-        horizon_dict[k] = [x,y,z]
+        arr = xyt[idx,:].T
+        horizon_dict[k] = arr
 
     return horizon_dict
 
-def get_horizon(horizon_dict,horizon_key):
-
-    return horizon_dict[horizon_dict]
