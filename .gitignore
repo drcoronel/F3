@@ -1,3 +1,4 @@
 # Ignore directories
 
 data/*
+src/__pycache__/*
