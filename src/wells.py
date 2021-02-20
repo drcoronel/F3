@@ -13,7 +13,7 @@ class Head:
     def __init__(self):
         pass
 
-    def get_headsg_from_file(self, file):
+    def get_heads_from_file(self, file):
         self.file = file
         for k, v in read_well_head(self.file).items():
             key = k.translate({ord(c): None for c in string.whitespace})

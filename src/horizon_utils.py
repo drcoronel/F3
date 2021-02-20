@@ -78,6 +78,7 @@ def parse_horizons_3D(path):
         Y.append(chars[4].rstrip("'"))
         Z.append(chars[5].rstrip("'"))
 
+    np.set_printoptions(suppress=True)
     surfaces = np.array(name)
     xyt = np.array([X, Y, Z]).astype(np.float)
     xyt = xyt.T
