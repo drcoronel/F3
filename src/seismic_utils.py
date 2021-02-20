@@ -26,6 +26,7 @@ class Seismic:
         xl_idx = np.arange(0,len(xlines))
         tl_idx = np.arange(0,len(samples))
         self.seismic.indices = np.array([il_idx,xl_idx,tl_idx])
+        
 
         # # Add CDP_X, CDP_Y sorting
 
@@ -94,9 +95,17 @@ class Seismic:
 
         cdpxs,cdpys = [],[]
 
+        coordinate_scalar = trace_header[0].get(segyio.TraceField.SourceGroupScalar)
+        
+        if coordinate_scalar < 0:
+            self.coordinate_scalar = 1 /np.abs(coordinate_scalar)
+        else:
+            self.coordinate_scalar = np.abs(coordinate_scalar)
+
+        np.set_printoptions(suppress=True)
         for h in trace_header:
-            cdpxs.append(h.get(segyio.TraceField.CDP_X))
-            cdpys.append(h.get(segyio.TraceField.CDP_Y))
+            cdpxs.append(h.get(segyio.TraceField.CDP_X)*self.coordinate_scalar)
+            cdpys.append(h.get(segyio.TraceField.CDP_Y)*self.coordinate_scalar)
         
         cdpx = np.unique(cdpxs)
         cdpy = np.unique(cdpys)
