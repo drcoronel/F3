@@ -152,8 +152,8 @@ class Seismic:
         well.xline = u_idx[1]
         well.cdpx = cdpx[u_idx]
         well.cdpy = cdpy[u_idx]
-        well.seis_well = np.array([self.seismic.data, self.seismic.samples]).T
-
+        trace = self.seismic.data[u_idx].squeeze()
+        well.seis_well = np.array([trace, self.seismic.samples])
         return  u_idx
 
 
@@ -174,32 +174,6 @@ class Seismic:
     #     hor_x, hor_y, hor_z = horizon.data
 
     #     for i in range(hor.shape[1]):
-
-    #         xx_idx = self.seismic.CDP_X.tolist()
-
-
-
-
-
-    def calculate_seismic_attribute(self,attribute_name = 'envelope',
-        subset = None):
-
-        if subset ==  None:
-            data = self.seismic.seismic.data
-        
-        else: 
-            data = self.seismic.seismic.data[subset]
-
-        if 'envelope': 
-            return seis_envelope(data)
-        if 'phase':
-            return seis_phase(data)
-        if 'cosine_of_phase':
-            return cosine_of_phase(data)
-
-
-
-
 
 ## Seismic attributes
 from scipy.signal import hilbert as hilbert_transform
