@@ -115,14 +115,50 @@ class Seismic:
         self.seismic.cdpy = np.array(cdpys).reshape(I,X)
 
         cdpx_dict = {'min':cdpx.min(), 'max': cdpx.max(),
-                   'step': np.diff(cdpx).max() }
+                #    'step': np.diff(cdpx).max()
+                     }
         cdpy_dict = {'min':cdpy.min(), 'max': cdpy.max(),
-                   'step': np.diff(cdpy).max() }
+                #    'step': np.diff(cdpy).max() 
+                     }
 
         bounds_dict['CDP_X'].update(cdpx_dict)
         bounds_dict['CDP_Y'].update(cdpy_dict)
 
         return bounds_dict
+    
+    def well_location(self,well):
+
+        cdpx = self.seismic.cdpx
+        cdpy = self.seismic.cdpy
+
+
+        ## Well X,Y locations from Header
+        x_well = float(well.SurfaceX)
+        y_well = float(well.SurfaceY)
+        
+        # Calculate RMS error. The trace with the lower RMS error is
+        # consider the "best" match
+        dist_x = np.abs(cdpx.flatten() - x_well)
+        dist_y = np.abs(cdpy.flatten() - y_well)
+
+        rms = np.sqrt(dist_x**2 + dist_y**2)
+
+        idx = np.where(rms == rms.min() )
+        # Unravel idxs to have the same shape of the seismic data.
+        u_idx = np.unravel_index(idx,shape = cdpx.shape) 
+        
+        #Add iline, xline indices, and the cdpx,cdpy seismic to the well.
+        well.iline = u_idx[0]
+        well.xline = u_idx[1]
+        well.cdpx = cdpx[u_idx]
+        well.cdpy = cdpy[u_idx]
+        well.seis_well = np.array(self.seismic.data, self.seismic.samples).T
+
+        return  u_idx
+
+
+
+
 
     # def extract_values(self,horizon,attribute = None):
     #     """
