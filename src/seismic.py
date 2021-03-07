@@ -19,7 +19,7 @@ class Seismic:
         self.seismic.data = self.seismic.trace.raw[:].reshape(
             (len(inlines), len(xlines), len(samples))
         )
-        self.seismic.shape = self.seismic.data.shape
+        self. shape = self.seismic.data.shape
         self.n_ilines = len(inlines)
         self.n_xlines = len(xlines)
         self.n_samples = len(samples)
@@ -122,7 +122,7 @@ class Seismic:
         cdpx = np.unique(cdpxs)
         cdpy = np.unique(cdpys)
 
-        I, X, _ = self.seismic.shape
+        I, X, _ = self.shape
         self.seismic.cdpx = np.array(cdpxs).reshape(I, X)
         self.seismic.cdpy = np.array(cdpys).reshape(I, X)
 
@@ -163,29 +163,15 @@ class Seismic:
         u_idx = np.unravel_index(idx, shape=cdpx.shape)
 
         # Add iline, xline indices, and the cdpx,cdpy seismic to the well.
-        well.iline = u_idx[0]
-        well.xline = u_idx[1]
+        well.iline_idx = u_idx[0]
+        well.xline_idx = u_idx[1]
+        well.iline = self.seismic.ilines[u_idx[0]]
+        well.xline = self.seismic.xlines[u_idx[1]]
         well.cdpx = cdpx[u_idx]
         well.cdpy = cdpy[u_idx]
         trace = self.seismic.data[u_idx].squeeze()
         well.seis_well = np.array([trace, self.seismic.samples])
         return u_idx
-
-    # def extract_values(self,horizon,attribute = None):
-    #     """
-    #     This function is based on the work of Alessandro Amato del Monte
-    #     https://github.com/aadm/geophysical_notes/blob/master/seismic_amplitude_extraction.ipynb
-    #     """
-    #     if attribute == None:
-    #         data = self.seismic.data
-
-    #     hor = horizon.data
-    #     horizon_extraction = np.zeros((4,hor.size))
-    #     seis_x,seis_y,seis_t = data
-    #     hor_x, hor_y, hor_z = horizon.data
-
-    #     for i in range(hor.shape[1]):
-
 
 ## Seismic attributes
 from scipy.signal import hilbert as hilbert_transform

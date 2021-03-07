@@ -1,6 +1,6 @@
 import pathlib
 import numpy as np
-import pandas as pd
+
 
 
 class Horizons:
@@ -101,13 +101,15 @@ class Horizon(Horizons):
         self.seismic_attribute = {}
         pass
 
-    def grid_horizon(self, kind="ixt", nx=200, ny=200):
+    def grid_horizon(self, kind="ixt", nx=200, ny=200,*,attribute=None):
         from scipy.interpolate import griddata
 
         if kind == "ixt":
             xs, ys, zs = self.data_ixt
         if kind == "xyt":
             xs, ys, zs = self.data_xyt
+        if kind == 'attribute' and attribute is not None:
+            xs,ys,_,zs = self.seismic_attribute[attribute]
 
         xi = np.linspace(xs.min(), xs.max(), nx)
         yi = np.linspace(ys.min(), ys.max(), ny)
@@ -116,24 +118,31 @@ class Horizon(Horizons):
 
         return X, Y, Z
 
-    def plot_horizon(self, kind="ixt", nx=200, ny=200):
+    def plot_horizon(self, kind="ixt", nx=200, ny=200,attribute=None):
         import matplotlib.pyplot as plt
 
-        X, Y, Z = self.grid_horizon(kind=kind, nx=nx, ny=ny)
+        X, Y, Z = self.grid_horizon(kind=kind, nx=nx, ny=ny,attribute=attribute)
 
+        name = Z if attribute is None else attribute
+        cmap = 'terrain_r' if attribute is None else 'seismic'
         fig, ax = plt.subplots()
-        c = ax.pcolormesh(X, Y, Z, cmap="terrain_r")
-        fig.colorbar(c, orientation="vertical", label="Z")
+        c = ax.pcolormesh(X, Y, Z, cmap=cmap)
+        fig.colorbar(c, orientation="vertical", label=name)
         ax.legend()
         ax.set_title(f"{self.name}")
 
         plt.show()
 
+
+
+
     def extract_seismic(
         self, seismic, twt_range=None, method="raw", attribute="seismic"
     ):
         """
-
+        This function is based on the work by Alessandro Amato del Monte:
+        https://github.com/aadm/geophysical_notes/blob/master/seismic_amplitude_extraction.ipynb
+        
         args:
         seismic: Seismic object
         twt_range: a tuple with (twt.min,twt.max). If non, it is calculated from the horizon
@@ -166,7 +175,6 @@ class Horizon(Horizons):
             data = seismic.seismic.data[..., idx_min : idx_max + 1]
         elif attribute == "envelope":
             from .seismic import seis_envelope
-
             data = seis_envelope(seismic.seismic.data[..., idx_min : idx_max + 1])
 
         hor_extr = np.zeros((horizon.shape[1], 4))
