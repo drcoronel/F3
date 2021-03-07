@@ -31,22 +31,20 @@ class Well(Head):
 
     """
 
-    def __init__(self, name, file):
-        self.file = file
-        self.path = pathlib.Path(file)
+    def __init__(self, name, logs_file):
+        self.file = logs_file
+        self.path = pathlib.Path(logs_file)
         self.Name = name
+        self.logs = well_reader(logs_file)
 
     def get_head(self, Head):
 
         idx = Head.Name.index(self.Name)
         head_dict = {k: v[idx] for k, v in Head.__dict__.items()}
+        self.header = head_dict
+        # for k, v in head_dict.items():
+        #     setattr(self, k, v)
 
-        for k, v in head_dict.items():
-            setattr(self, k, v)
-
-    def read_logs(self, logs_file):
-        self.logs_file = logs_file
-        self.logs = well_reader(self.logs_file)
 
 
 def well_reader(path, nan_value=1e30):

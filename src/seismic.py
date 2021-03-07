@@ -18,7 +18,10 @@ class Seismic:
         samples = self.seismic.samples
         self.seismic.data = self.seismic.trace.raw[:].reshape((len(inlines),len(xlines),len(samples)))
         self.seismic.shape = self.seismic.data.shape
-
+        self.n_ilines = len(inlines)
+        self.n_xlines = len(xlines)
+        self.n_samples = len(samples)
+        self.sample_interval = self.seismic.header[0].get(segyio.TraceField.TRACE_SAMPLE_INTERVAL) //1000
         self.bounds = self.calculate_bounds()
 
         #Calculate indices:
@@ -133,8 +136,8 @@ class Seismic:
 
 
         ## Well X,Y locations from Header
-        x_well = float(well.SurfaceX)
-        y_well = float(well.SurfaceY)
+        x_well = float(well.header['SurfaceX'])
+        y_well = float(well.header['SurfaceY'])
         
         # Calculate RMS error. The trace with the lower RMS error is
         # consider the "best" match
