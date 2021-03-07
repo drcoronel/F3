@@ -46,7 +46,6 @@ class Well(Head):
         #     setattr(self, k, v)
 
 
-
 def well_reader(path, nan_value=1e30):
     """
     Function that reads a .data well logs file exported that from OpendTect
