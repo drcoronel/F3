@@ -123,7 +123,7 @@ class Horizon(Horizons):
 
         X, Y, Z = self.grid_horizon(kind=kind, nx=nx, ny=ny,attribute=attribute)
 
-        name = Z if attribute is None else attribute
+        name = 'Depth' if attribute is None else attribute
         cmap = 'terrain_r' if attribute is None else 'seismic'
         fig, ax = plt.subplots()
         c = ax.pcolormesh(X, Y, Z, cmap=cmap)
